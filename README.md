@@ -1,6 +1,24 @@
 # About
 
-C++ library
+Header-only library that can simplify usage of `Cling C++ interpreter` with flextool.
+
+`flextool` can be found at [https://github.com/blockspacer/flextool](https://github.com/blockspacer/flextool)
+
+## Usage
+
+Pass command-line argument to flextool `--cling_scripts=${flex_support_headers}`
+
+Where `${flex_support_headers}` is path to `flex_support_headers/flex/cling_preloader.inc`
+
+`--cling_scripts` argument allows to preload include files or whole C++ source files.
+
+That may be useful because `Cling` may fail to include header file at runtime using `process` function (we want to process included file once).
+
+See for details https://github.com/root-project/cling/blob/master/include/cling/Interpreter/Interpreter.h
+
+## Before installation
+
+- [installation guide](https://blockspacer.github.io/flex_docs/download/)
 
 ## Installation
 
