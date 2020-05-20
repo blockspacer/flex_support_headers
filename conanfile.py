@@ -68,7 +68,7 @@ class flex_support_headers_conan_project(ConanFile):
                        "scripts/*", "tools/*", "codegen/*", "assets/*",
                        "docs/*", "licenses/*", "patches/*", "resources/*",
                        "submodules/*", "thirdparty/*", "third-party/*",
-                       "third_party/*", "base/*", "build/*", "cobalt/*", "flex/*")
+                       "third_party/*", "cobalt/*", "flex/*")
 
     settings = "os", "compiler", "build_type", "arch"
 
@@ -123,7 +123,7 @@ class flex_support_headers_conan_project(ConanFile):
         cmake.verbose = True
 
         if self.options.shared:
-            cmake.definitions["BUILD_SHARED_LIBS"] = "ON"
+            cmake.definitions["flex_support_headers_BUILD_SHARED_LIBS"] = "ON"
 
         def add_cmake_option(var_name, value):
             value_str = "{}".format(value)

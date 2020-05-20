@@ -9,6 +9,12 @@ project(${PROJECT_NAME}
   VERSION ${PROJECT_VERSION}
   LANGUAGES CXX C)
 
+# Hack to depend NOT on CONAN_PKG::libname, but on libname directly
+# See for details
+# https://docs.conan.io/en/latest/developing_packages/workspaces.html
+set(LOCAL_BUILD FALSE CACHE BOOL "LOCAL_BUILD")
+message(STATUS "LOCAL_BUILD=${LOCAL_BUILD}")
+
 set(LIB_NAME ${PROJECT_NAME})
 
 set(ENABLE_CLING TRUE CACHE BOOL "ENABLE_CLING")
@@ -26,7 +32,9 @@ endif()
 
 # Conan package manager List of packages used by the project is container in
 # conanfile.py
-option(CONAN_AUTO_INSTALL "Let CMake call conan install automatically" OFF)
+option(CONAN_AUTO_INSTALL "Let CMake call conan install automatically"
+  OFF
+)
 if (CONAN_AUTO_INSTALL)
   set(CONAN_PROFILE
       "default"
@@ -68,11 +76,11 @@ else()
   message(FATAL_ERROR "not supported: using system provided chromium_build_util library")
 endif()
 
-include(cmake/PlatformChecks)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/PlatformChecks.cmake)
 
-include(cmake/CommonOptions)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/CommonOptions.cmake)
 
-include(cmake/ProjectFiles)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/ProjectFiles.cmake)
 
 # Keep symbols for JIT resolution
 set(LLVM_NO_DEAD_STRIP 1)
@@ -168,4 +176,4 @@ if(ENABLE_CLANG_FROM_CONAN)
 endif(ENABLE_CLANG_FROM_CONAN)
 
 # install and export steps
-include(cmake/Exports)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/Exports.cmake)
