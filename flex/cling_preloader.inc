@@ -14,6 +14,7 @@
 #include <clang/ASTMatchers/ASTMatchFinder.h>
 #include <clang/ASTMatchers/ASTMatchersMacros.h>
 #include <clang/AST/Type.h>
+#include <clang/AST/RecordLayout.h>
 #include <clang/Frontend/CompilerInstance.h>
 #include <clang/Sema/Sema.h>
 #include <clang/Basic/FileManager.h>
@@ -65,3 +66,11 @@ namespace fs = std::filesystem;
 #else
 namespace fs = std::experimental::filesystem;
 #endif // __has_include
+
+#include <string>
+#include <any>
+
+std::map<
+    std::string
+    , std::any
+  > global_storage;
