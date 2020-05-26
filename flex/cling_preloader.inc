@@ -2,6 +2,9 @@
 
 #include "flexlib/clangUtils.hpp"
 
+#include <flexlib/reflect/ReflTypes.hpp>
+#include <flexlib/reflect/ReflectAST.hpp>
+
 #if __has_include(<filesystem>)
 #include <filesystem>
 #else
