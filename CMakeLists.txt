@@ -12,8 +12,8 @@ project(${PROJECT_NAME}
 # Hack to depend NOT on CONAN_PKG::libname, but on libname directly
 # See for details
 # https://docs.conan.io/en/latest/developing_packages/workspaces.html
-set(LOCAL_BUILD FALSE CACHE BOOL "LOCAL_BUILD")
-message(STATUS "LOCAL_BUILD=${LOCAL_BUILD}")
+set(${PROJECT_NAME}_LOCAL_BUILD FALSE CACHE BOOL "${PROJECT_NAME}_LOCAL_BUILD")
+message(STATUS "${PROJECT_NAME}_LOCAL_BUILD=${${PROJECT_NAME}_LOCAL_BUILD}")
 
 set(LIB_NAME ${PROJECT_NAME})
 
@@ -28,31 +28,74 @@ if(ENABLE_CLANG_FROM_CONAN AND ENABLE_CLING)
     "don't use both ENABLE_CLING and ENABLE_CLANG_FROM_CONAN at the same time. cling already provides clang libtooling")
 endif()
 
+
 # --------------------------- conan configuration ------------------------------
 
-# Conan package manager List of packages used by the project is container in
-# conanfile.py
+# Note: FetchContent is available since CMake 3.11
+# see https://cmake.org/cmake/help/git-master/module/FetchContent.html
+# By default, everything is downloaded into your build directory
+# Once CMake successfully downloads our external content, it sets two variables that can be used in CMakeLists.txt to locate the new data:
+# 1 <resource_name>_SOURCE_DIR
+#   specifies the location of the downloaded sources,
+# 2 <resource_name>_BINARY_DIR
+#   specifies where is the default build directory for the downloaded sources.
+include(FetchContent)
+
+set(FetchContent_conan_auto_install "conan_auto_install")
+FetchContent_Declare(
+  ${FetchContent_conan_auto_install}
+  PREFIX external_dependencies/${FetchContent_conan_auto_install}
+  GIT_REPOSITORY https://github.com/blockspacer/conan_auto_install.git
+  GIT_TAG origin/master
+  # Disable warning about detached HEAD https://stackoverflow.com/a/36794768
+  GIT_CONFIG        advice.detachedHead=false
+  SOURCE_DIR        "${CMAKE_BINARY_DIR}/${FetchContent_conan_auto_install}"
+  BINARY_DIR        "${CMAKE_BINARY_DIR}/${FetchContent_conan_auto_install}-build"
+  CMAKE_ARGS        "-Wno-dev"
+  CONFIGURE_COMMAND ""
+  BUILD_COMMAND     ""
+  INSTALL_COMMAND   ""
+  TEST_COMMAND      ""
+)
+FetchContent_GetProperties(${FetchContent_conan_auto_install})
+if (NOT ${FetchContent_conan_auto_install}_POPULATED)
+  # Populate command can be used only once for every resource
+  # during cmake configuration, which explains the conditional above.
+  FetchContent_Populate(${FetchContent_conan_auto_install})
+endif()
+message(STATUS "${FetchContent_conan_auto_install}_SOURCE_DIR = ${${FetchContent_conan_auto_install}_SOURCE_DIR}")
+message(STATUS "${FetchContent_conan_auto_install}_BINARY_DIR = ${${FetchContent_conan_auto_install}_BINARY_DIR}")
+include(${${FetchContent_conan_auto_install}_SOURCE_DIR}/conan-auto-install.cmake)
 option(CONAN_AUTO_INSTALL "Let CMake call conan install automatically"
   OFF
 )
 if (CONAN_AUTO_INSTALL)
   set(CONAN_PROFILE
-      "default"
+      "clang"
       CACHE STRING "Conan profile to use during installation")
-  include(cmake/conan-auto-install.cmake)
-  conan_auto_install(${CONAN_PROFILE})
+  if (NOT CMAKE_BUILD_TYPE MATCHES "Debug" )
+    set(conan_build_type "Release")
+  else()
+    set(conan_build_type "Debug")
+  endif()
+  # No --build=missing cause llvm requires long build
+  conan_auto_install(
+    CONAN_OPTIONS "--profile=${CONAN_PROFILE} -s build_type=${conan_build_type} -s cling_conan:build_type=Release -o openssl:shared=True"
+    #FORCE
+  )
 endif()
 
-if(EXISTS "${CMAKE_BINARY_DIR}/conanbuildinfo.cmake")
-  list(APPEND CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR}/)
-  include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-  include(${CMAKE_BINARY_DIR}/conan_paths.cmake OPTIONAL)
+if(EXISTS "${CMAKE_CURRENT_BINARY_DIR}/conanbuildinfo.cmake")
+  list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR}/)
+  include(${CMAKE_CURRENT_BINARY_DIR}/conanbuildinfo.cmake)
+  include(${CMAKE_CURRENT_BINARY_DIR}/conan_paths.cmake OPTIONAL)
   conan_basic_setup(
     # prevent conan_basic_setup from resetting cmake variables
     TARGETS
     KEEP_RPATHS
     # see https://github.com/conan-io/conan/issues/6012
-    NO_OUTPUT_DIRS)
+    NO_OUTPUT_DIRS
+    )
 else()
   message (FATAL_ERROR "must use conan")
 endif()
@@ -132,8 +175,13 @@ list(APPEND USED_3DPARTY_LIBS
   ${build_util_LIB}
 )
 
+find_package(basis REQUIRED)
+if(${basis_HEADER_DIR} STREQUAL "")
+  message(FATAL_ERROR "unable to find basis_HEADER_DIR")
+endif()
+
 list(APPEND USED_3DPARTY_LIBS
-  CONAN_PKG::basis
+  ${basis_LIB}
   CONAN_PKG::boost
   ${USED_BOOST_LIBS}
   #boost_outcome
