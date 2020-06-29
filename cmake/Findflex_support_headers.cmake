@@ -12,12 +12,12 @@ if(NOT TARGET CONAN_PKG::flex_support_headers)
   message(FATAL_ERROR "Use flex_support_headers from conan")
 endif()
 # conan package has '/include' dir
-set(flex_support_header_HEADER_FILE
+set(flex_support_headers_HEADER_FILE
   ${CONAN_FLEX_SUPPORT_HEADERS_ROOT}/include/flex/cling_preloader.inc
 )
 if(flex_support_headers_LOCAL_BUILD)
   # no '/include' dir on local build
-  set(flex_support_header_HEADER_FILE
+  set(flex_support_headers_HEADER_FILE
     ${CONAN_FLEX_SUPPORT_HEADERS_ROOT}/flex/cling_preloader.inc
   )
 else()
