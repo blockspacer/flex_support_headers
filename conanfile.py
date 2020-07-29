@@ -108,15 +108,6 @@ class flex_support_headers_conan_project(ConanFile):
 
         self.requires("basis/master@conan/stable")
 
-        # if self.settings.os == "Linux":
-        #     self.requires("chromium_dynamic_annotations/master@conan/stable")
-
-        #self.requires("corrade/2019.10@magnum/stable")
-
-        #self.requires("type_safe/0.2@conan/stable")
-
-        #self.requires("double-conversion/3.1.1@bincrafters/stable")
-
     def _configure_cmake(self):
         cmake = CMake(self)
         cmake.parallel = True
