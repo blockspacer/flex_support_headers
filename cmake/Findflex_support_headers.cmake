@@ -15,12 +15,15 @@ endif()
 set(flex_support_headers_HEADER_FILE
   ${CONAN_FLEX_SUPPORT_HEADERS_ROOT}/include/flex/cling_preloader.inc
 )
-if(flex_support_headers_LOCAL_BUILD)
+# used by https://docs.conan.io/en/latest/developing_packages/workspaces.html
+if(TARGET flex_support_headers)
   # no '/include' dir on local build
   set(flex_support_headers_HEADER_FILE
     ${CONAN_FLEX_SUPPORT_HEADERS_ROOT}/flex/cling_preloader.inc
   )
-else()
+endif()
+
+if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/cmake/flex_support_headers-config.cmake")
   # uses Config.cmake or a -config.cmake file
   # see https://gitlab.kitware.com/cmake/community/wikis/doc/tutorials/How-to-create-a-ProjectConfig.cmake-file
   # BELOW MUST BE EQUAL TO find_package(... CONFIG REQUIRED)

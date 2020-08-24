@@ -72,24 +72,12 @@ class flex_support_headers_conan_project(ConanFile):
 
     settings = "os", "compiler", "build_type", "arch"
 
-    #def source(self):
-    #  url = "https://github.com/....."
-    #  self.run("git clone %s ......." % url)
-
     def build_requirements(self):
         self.build_requires("cmake_platform_detection/master@conan/stable")
         self.build_requires("cmake_build_options/master@conan/stable")
 
     def requirements(self):
         self.requires("chromium_build_util/master@conan/stable")
-
-        #if self._is_tests_enabled():
-        #    self.requires("catch2/[>=2.1.0]@bincrafters/stable")
-        #    self.requires("gtest/[>=1.8.0]@bincrafters/stable")
-        #    self.requires("FakeIt/[>=2.0.4]@gasuketsu/stable")
-
-        #if not self.options.use_system_boost:
-        #    self.requires("boost/1.71.0@dev/stable")
 
         self.requires("chromium_build_util/master@conan/stable")
 
