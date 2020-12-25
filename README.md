@@ -38,4 +38,7 @@ GIT_SSL_NO_VERIFY=true \
       -s build_type=Debug -s cling_conan:build_type=Release \
       --profile clang \
           -o flex_support_headers:enable_clang_from_conan=False
+
+# clean build cache
+conan remove "*" --build --force
 ```
