@@ -3,6 +3,16 @@ import traceback
 import os
 import shutil
 
+# Users locally they get the 1.0.0 version,
+# without defining any env-var at all,
+# and CI servers will append the build number.
+# USAGE
+# version = get_version("1.0.0")
+# BUILD_NUMBER=-pre1+build2 conan export-pkg . my_channel/release
+def get_version(version):
+    bn = os.getenv("BUILD_NUMBER")
+    return (version + bn) if bn else version
+
 # conan runs the methods in this order:
 # config_options(),
 # configure(),
@@ -24,7 +34,7 @@ class flex_support_headers_conan_project(ConanFile):
     # TODO (!!!)
     # license = "MIT"
 
-    version = "master"
+    version = get_version("master")
 
     # TODO (!!!)
     #url = "https://github.com/blockspacer/CXXCTP"
@@ -90,7 +100,7 @@ class flex_support_headers_conan_project(ConanFile):
           self.requires("clang_ast/6.0.1@Manu343726/testing")
           self.requires("llvm/6.0.1@Manu343726/testing")
         else:
-          self.requires("cling_conan/master@conan/stable")
+          self.requires("cling_conan/v0.9@conan/stable")
 
         self.requires("chromium_base/master@conan/stable")
 
